@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catatan Kenangan</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff0f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    h2 {
+      text-align: center;
+      color: #d63384;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #d63384;
+      color: white;
+      cursor: pointer;
+    }
+    .note, .message {
+      background-color: #ffe6f0;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container" id="login-section">
+    <h2>Masuk</h2>
+    <input type="password" id="password" placeholder="Masukkan password"/>
+    <button onclick="checkLogin()">Masuk</button>
+    <p id="login-error" style="color: red; text-align:center;"></p>
+  </div>
+
+  <div class="container hidden" id="app-section">
+    <h2>Catatan Kenangan</h2>
+    <input type="text" id="note-title" placeholder="Judul kenangan">
+    <textarea id="note-content" placeholder="Isi kenangan..."></textarea>
+    <input type="date" id="note-date">
+    <button onclick="addNote()">Simpan Kenangan</button>
+    <div id="notes-list"></div>
+
+    <h2>Pesan Otomatis</h2>
+    <textarea id="message-content" placeholder="Tulis pesan cinta..."></textarea>
+    <input type="date" id="message-date">
+    <button onclick="addMessage()">Simpan Pesan</button>
+    <div id="messages-list"></div>
+  </div>
+
+  <script>
+    const PASSWORD = "sayangku"; // Ganti ini dengan password kamu
+
+    function checkLogin() {
+      const input = document.getElementById("password").value;
+      if (input === PASSWORD) {
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("app-section").classList.remove("hidden");
+        loadNotes();
+        loadMessages();
+        checkMessages();
+      } else {
+        document.getElementById("login-error").innerText = "Password salah!";
+      }
+    }
+
+    function addNote() {
+      const title = document.getElementById("note-title").value;
+      const content = document.getElementById("note-content").value;
+      const date = document.getElementById("note-date").value;
+      if (title && content && date) {
+        const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+        notes.push({ title, content, date });
+        localStorage.setItem("notes", JSON.stringify(notes));
+        loadNotes();
+        document.getElementById("note-title").value = "";
+        document.getElementById("note-content").value = "";
+        document.getElementById("note-date").value = "";
+      }
+    }
+
+    function loadNotes() {
+      const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+      const container = document.getElementById("notes-list");
+      container.innerHTML = "";
+      notes.forEach(note => {
+        const div = document.createElement("div");
+        div.className = "note";
+        div.innerHTML = `<strong>${note.title}</strong> <br><em>${note.date}</em><p>${note.content}</p>`;
+        container.appendChild(div);
+      });
+    }
+
+    function addMessage() {
+      const content = document.getElementById("message-content").value;
+      const date = document.getElementById("message-date").value;
+      if (content && date) {
+        const messages = JSON.parse(localStorage.getItem("messages") || "[]");
+        messages.push({ content, date });
+        localStorage.setItem("messages", JSON.stringify(messages));
+        loadMessages();
+        document.getElementById("message-content").value = "";
+        document.getElementById("message-date").value = "";
+      }
+    }
+
+    function loadMessages() {
+      const messages = JSON.parse(localStorage.getItem("messages") || "[]");
+      const container = document.getElementById("messages-list");
+      container.innerHTML = "";
+      messages.forEach(msg => {
+        const div = document.createElement("div");
+        div.className = "message";
+        div.innerHTML = `<em>${msg.date}</em><p>${msg.content}</p>`;
+        container.appendChild(div);
+      });
+    }
+
+    function checkMessages() {
+      const today = new Date().toISOString().slice(0, 10);
+      const messages = JSON.parse(localStorage.getItem("messages") || "[]");
+      messages.forEach(msg => {
+        if (msg.date === today) {
+          alert("Pesan buat kamu hari ini:\\n\\n" + msg.content);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
